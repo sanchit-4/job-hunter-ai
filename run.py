@@ -3,8 +3,6 @@ import uvicorn
 import asyncio
 
 if __name__ == "__main__":
-    # CRITICAL: Force Windows to use ProactorEventLoop
-    # This supports subprocesses required by Playwright
     if sys.platform.startswith("win"):
         asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
     
