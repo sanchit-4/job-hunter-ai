@@ -110,14 +110,23 @@ if analyze_btn:
                         c_left, c_right = st.columns([1, 1.2], gap="medium")
                         
                         with c_left:
-                            # DOWNLOAD BUTTON
-                            st.markdown(f"""
-                            <a href="file://generated_applications/{job_id}.pdf" target="_blank" style="text-decoration:none;">
-                                <div style="background: #10b981; color:white; padding:15px; border-radius:10px; text-align:center; font-weight:bold; margin-bottom: 20px;">
-                                    📥 Download Resume + Cover Letter (PDF)
-                                </div>
-                            </a>
-                            """, unsafe_allow_html=True)
+                            # 1. Fetch the PDF bytes from the Backend
+                            try:
+                                pdf_response = requests.get(f"{API_URL}/download/{job_id}")
+                                
+                                if pdf_response.status_code == 200:
+                                    # 2. Use Streamlit's Native Download Button
+                                    st.download_button(
+                                        label="📥 DOWNLOAD RESUME PACKAGE (PDF)",
+                                        data=pdf_response.content,
+                                        file_name=f"JobApplication_{job_id}.pdf",
+                                        mime="application/pdf",
+                                        use_container_width=True
+                                    )
+                                else:
+                                    st.error("PDF not found on server.")
+                            except Exception as e:
+                                st.error(f"Download Error: {e}")
                             
                             st.markdown('<div class="section-header">COVER LETTER PREVIEW</div>', unsafe_allow_html=True)
                             cl = r.get('cover_letter', '')

@@ -9,6 +9,7 @@ from app.db.session import get_db
 from app.models.job import Job
 from app.schemas.job import JobCreate, JobResponse
 from app.services.scraper_service import scrape_job_text
+from fastapi.responses import FileResponse  
 from app.services.llm_service import generate_tailored_application
 
 router = APIRouter()
@@ -197,3 +198,29 @@ async def get_job_status(job_id: str, db: AsyncSession = Depends(get_db)):
     job = result.scalar_one_or_none()
     if not job: raise HTTPException(status_code=404, detail="Job not found")
     return job
+
+@router.get("/download/{job_id}")
+async def download_application(job_id: str):
+    """
+    Serves the generated PDF to the frontend.
+    """
+    file_path = f"generated_applications/{job_id}.pdf"
+    
+    # Check if file exists
+    if os.path.exists(file_path):
+        return FileResponse(
+            path=file_path, 
+            filename=f"Application_{job_id}.pdf", 
+            media_type='application/pdf'
+        )
+    
+    # Fallback if PDF failed, try HTML
+    html_path = f"generated_applications/{job_id}.html"
+    if os.path.exists(html_path):
+         return FileResponse(
+            path=html_path, 
+            filename=f"Application_{job_id}.html", 
+            media_type='text/html'
+        )
+        
+    raise HTTPException(status_code=404, detail="File not found")
