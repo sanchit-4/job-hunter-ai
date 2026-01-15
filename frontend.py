@@ -1172,8 +1172,11 @@ except ImportError:
     st.error("Missing dependency. Please run: pip install pypdf")
 
 # --- CONFIG ---
-API_URL = "http://127.0.0.1:8000/api/v1"
-st.set_page_config(page_title="JobHunter Pro", page_icon="⚡", layout="wide", initial_sidebar_state="collapsed")
+if "API_URL" in st.secrets:
+    API_URL = st.secrets["API_URL"]
+else:
+    API_URL = "http://127.0.0.1:8000/api/v1"
+st.set_page_config(page_title="JobHunter", page_icon="", layout="wide", initial_sidebar_state="collapsed")
 
 # --- CUSTOM CSS ---
 st.markdown("""
